@@ -1,16 +1,30 @@
+import axios from 'axios';
 import { useState } from 'react'
 import {Card, Button, Form} from "react-bootstrap"
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const[email, setEmail] = useState("");
     const[password, setPassword] = useState("");
+    const[error, setError] = useState("");
+    const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async(e) => {
         e.preventDefault();
-        if (email == "admin@gmail.com" && password == '12345') {
-            alert('Login Berhasil!')
-        }else{
-            alert("Mohon periksa email dan password anda!")
+        setError("");
+        try {
+          const response = await axios.post('http://127.0.0.1:8000/api/login', {
+            email,
+            password,
+          });
+
+          if(response.status == 200){
+            localStorage.setItem("token", response.data.token);
+            navigate("/user")
+          }
+        } catch (error) {
+          setError(error.response.data.message || "Login Failed")
+          console.log(error.error);
         }
     } 
   return (
